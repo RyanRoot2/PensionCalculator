@@ -38,7 +38,7 @@ def create_form():
         col1, col2 = st.columns(2)
         with col1:
             ee_contribution_rate = st.number_input("Your Contribution Rate (in %)", min_value=0.0, value=4.0)
-            growth_rate = st.number_input("Annual Growth Rate (in %)", min_value=0.0, value=4.0)
+            growth_rate = st.number_input("Annual Growth Rate (in %)", min_value=0.0, value=5.0)
             salary_inflation = st.number_input("Salary Inflation Rate (in %)", min_value=0.0, value=2.0)
 
         with col2:
