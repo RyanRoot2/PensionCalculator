@@ -24,6 +24,9 @@ def create_form():
             balance = st.number_input("Starting Balance", min_value=0.0, value=10000.0)
             sal_sac = st.toggle("Is your pension Salary Sacrifice?",["Yes","No"])
 
+            if not sal_sac:
+                st.warning("Relief at source calculations are not implemented yet, sorry!")
+
 
         # Column 2 inputs
         with col2:

@@ -68,5 +68,4 @@ def apply_salary_increase(df):
             start_year = row['start_year']
             start_month = (start_year * 12) + 1
             salary_inflation = st.session_state.form_data['salary_inflation']
-            
             calculations.salary_df_functions(df, new_salary, start_month, salary_inflation)
