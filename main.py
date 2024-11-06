@@ -1,103 +1,60 @@
 import streamlit as st
-import calculations
 import pandas as pd
+
+import calculations
+import input_form
+import salary_increase
+
 
 
 st.title("Pension Value Calculator")
 
-st.write("### Input Data")
-col1, col2 = st.columns(2)
-salary = col1.number_input("Salary", min_value=0, value=32000)
-balance = col1.number_input("Starting Balance", min_value=0, value=10000)
-growth_rate = col1.number_input("Annual Growth Rate (in %)", min_value=0.0, value=3.0)
-contribution_rate = col2.number_input("Annual Salary Contribution (in %)", 
-                                      min_value=0.0, value=8.0)
-years_to_retirement = col2.number_input("Years to Retirement", min_value=1, value=40)
-inflation_rate = col2.number_input("Inflation Rate (in %)", min_value=0.0, value=2.0)
-salary_inflation = st.number_input("Salary Inflation Rate (in %)", min_value=0.0, value=2.0)
 
 
+# Call the form and get the input values
+form_data = input_form.create_form()
 
-pre_retirement_df = calculations.create_table(years_to_retirement)
-calculations.set_salary(pre_retirement_df, salary, 1)
-calculations.set_growth_rate(pre_retirement_df,growth_rate,1)
-calculations.set_contribution_rate(pre_retirement_df,contribution_rate,1)
-calculations.calc_salary_inflation(pre_retirement_df,salary_inflation,13)
-calculations.set_monthly_payment(pre_retirement_df)
-calculations.add_lump_sum(pre_retirement_df, balance, 1)
-calculations.calc_total_payment(pre_retirement_df)
-calculations.calc_fv_col(pre_retirement_df)
-fv_total = calculations.calc_fv_total(pre_retirement_df)
+# Initialise Salary Increase state
+salary_increase.initialise_session_state()
+salary_increase.display_salary_increases()
+salary_increase.add_salary_increase()
 
+# Initialise form, future value, and pre_retirement_df
+input_form.init_session_state()
 
 
+if st.session_state.form_data:
+    # Perform calculations only if they haven’t been done yet
+    st.session_state.pre_retirement_df = calculations.create_table(st.session_state.form_data['years_to_retirement'])
+    
+    # Perform calculations and set values in pre_retirement_df
+    calculations.set_salary(st.session_state.pre_retirement_df, st.session_state.form_data['salary'], 1)
+    calculations.set_growth_rate(st.session_state.pre_retirement_df, st.session_state.form_data['growth_rate'], 1)
+    calculations.set_contribution_rate(st.session_state.pre_retirement_df, st.session_state.form_data['ee_contribution_rate'], 1)
+    calculations.calc_salary_inflation(st.session_state.pre_retirement_df, st.session_state.form_data['salary_inflation'], 13)
+    calculations.set_monthly_payment(st.session_state.pre_retirement_df)
+    calculations.add_lump_sum(st.session_state.pre_retirement_df, st.session_state.form_data['balance'], 1)
+    calculations.calc_total_payment(st.session_state.pre_retirement_df)
+    calculations.calc_fv_col(st.session_state.pre_retirement_df)
+
+    # Save future value total in session state
+    st.session_state.fv_total = calculations.calc_fv_total(st.session_state.pre_retirement_df)
+
+    # Display the future value and DataFrame
+    fv_col, pv_col = st.columns(2)
+    with fv_col:
+        st.write(f"### Future Value: £{st.session_state.fv_total:,.0f}")
+        
+    with pv_col:
+        fv = st.session_state.fv_total
+        rate = st.session_state.form_data['inflation_rate']
+        years = st.session_state.form_data['years_to_retirement']
+        pv = calculations.calc_pv(fv, rate, years)
+        st.write(f"### Inflation Adjusted: £{pv:,.0f}")
 
 
-# Initialize session state
-if 'salary_increases' not in st.session_state:
-    st.session_state.salary_increases = []
-if 'df' not in st.session_state:
-    st.session_state.salary_increases_df = pd.DataFrame(columns=["salary", "start_year"])
-
-# Temporary variables to hold input values before updating session state
-temp_salary = st.number_input("New Salary", step=100, value=0)
-temp_start_year = st.number_input("Starting in how many years?", min_value=0, value=0)
-
-# Add a button to save the new increase only after inputs are filled
-if st.button("Save Salary Increase"):
-    # Append the new values to session state only after clicking "Save Salary Increase"
-    st.session_state.salary_increases.append({"salary": temp_salary, "start_year": temp_start_year})
-
-# Display input fields for each salary increase from session state
-for index, increase in enumerate(st.session_state.salary_increases):
-    salary = st.number_input(f"Salary Increase #{index + 1}:", value=increase["salary"], step=100, key=f"salary_{index}")
-    start_year = st.number_input(f"Start Year for Increase #{index + 1}:", value=increase["start_year"], min_value=0, key=f"year_{index}")
-    # Update session state with any modifications made to the inputs
-    st.session_state.salary_increases[index] = {"salary": salary, "start_year": start_year}
-
-# Add salary increases to the DataFrame
-st.session_state.salary_increases_df = pd.DataFrame(st.session_state.salary_increases)
-
-# Loop through the DataFrame and apply salary updates to pre_retirement_df
-for _, increase in st.session_state.salary_increases_df.iterrows():
-    salary = increase['salary']
-    start_year = increase['start_year']
-    start_month = (start_year * 12)+1
-     
-    calculations.set_salary(pre_retirement_df, salary, start_month)
-    calculations.calc_salary_inflation(pre_retirement_df,salary_inflation,start_month+12)
-    calculations.set_monthly_payment(pre_retirement_df)
-    calculations.add_lump_sum(pre_retirement_df, balance, 1)
-    calculations.calc_total_payment(pre_retirement_df)
-    calculations.calc_fv_col(pre_retirement_df)
-    fv_total = calculations.calc_fv_total(pre_retirement_df)
+salary_increase.apply_salary_increase(st.session_state.pre_retirement_df)
 
 
-
-# Initialize session state
-if 'future_value' not in st.session_state:
-    st.session_state.future_value = fv_total
-st.session_state.future_value = fv_total
-
-st.write("### Future Value")
-col1, col2 = st.columns(2)
-with col1:
-	st.metric(label="Unadjusted Value", value=f"${st.session_state.future_value:,.0f}", label_visibility="visible")
-
-inflation_adjusted_fv = st.session_state.future_value / (1+inflation_rate/100)**years_to_retirement
-with col2:
-	st.metric(label="Inflation Adjusted Value", value=f"${inflation_adjusted_fv:,.0f}", label_visibility="visible")
-
-
-st.write(pre_retirement_df)
-
-
-
-
-
-
-
-# Display the updated DataFrame
-st.write(st.session_state.salary_increases_df)
-
-
+if st.session_state.pre_retirement_df is not None:
+    st.write(st.session_state.pre_retirement_df)

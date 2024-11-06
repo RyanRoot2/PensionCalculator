@@ -55,3 +55,8 @@ def calc_fv_total(df):
     return fv_total
 
 
+def calc_pv(fv, inflation_rate, years):
+    rate = 1 + inflation_rate/100
+    pv = fv / rate ** years
+    return pv
+
