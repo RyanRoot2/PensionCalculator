@@ -55,7 +55,7 @@ def get_salary_increases():
 
 def apply_salary_increase(df):
     import calculations
-    
+
     if ('salary_increases_df' in st.session_state 
     and not st.session_state.salary_increases_df.empty
 
@@ -66,7 +66,7 @@ def apply_salary_increase(df):
         for _, row in get_salary_increases().iterrows():
             new_salary = row['salary']
             start_year = row['start_year']
-
             start_month = (start_year * 12) + 1
+            salary_inflation = st.session_state.form_data['salary_inflation']
             
-            calculations.set_salary(df, new_salary, start_month)
+            calculations.salary_df_functions(df, new_salary, start_month, salary_inflation)

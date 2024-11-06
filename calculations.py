@@ -39,7 +39,7 @@ def set_growth_rate(df, annual_rate, start_month):
 
 
 def calc_salary_inflation(df, annual_rate, start_month):
-    for month in range(start_month-1, len(df), 12):
+    for month in range(start_month-1+12, len(df), 12):
         df.loc[month:, 'Salary'] *=  (1+annual_rate/100)
         df.loc[month:, 'Monthly_Payment'] = df.loc[month:, 'Salary']/12
 
@@ -60,3 +60,12 @@ def calc_pv(fv, inflation_rate, years):
     pv = fv / rate ** years
     return pv
 
+
+def salary_df_functions(df, new_salary, start_month, salary_inflation):
+    import streamlit as st
+    set_salary(df, new_salary, start_month)
+    calc_salary_inflation(df, salary_inflation, start_month)
+    set_monthly_payment(df)
+    calc_total_payment(df)
+    calc_fv_col(df)
+    st.session_state.fv_total = calc_fv_total(df)
