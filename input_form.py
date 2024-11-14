@@ -21,7 +21,7 @@ def create_form():
         # Column 1 inputs
         with col1:
             age = st.number_input("Age", min_value=0, value=30)
-            balance = st.number_input("Starting Balance", min_value=0.0, value=10000.0)
+            balance = st.number_input("Starting Balance", min_value=0, value=10000)
             sal_sac = st.toggle("Is your pension Salary Sacrifice?",["Yes","No"])
 
             if not sal_sac:
@@ -31,7 +31,7 @@ def create_form():
         # Column 2 inputs
         with col2:
             retirement_age = st.number_input("Retirement Age", min_value=0, value=66)
-            salary = st.number_input("Annual Salary", min_value=0.0, value=32000.0)
+            salary = st.number_input("Annual Salary", min_value=0, value=32000)
 
         #Because the rows aren't aligned...
 

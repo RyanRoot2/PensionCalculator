@@ -4,10 +4,18 @@ import pandas as pd
 import calculations
 import input_form
 import salary_increase
+import retirement_form
+import retirement_calcs
 
 
 
 st.title("Pension Value Calculator")
+st.warning(
+    "This tool provides illustrative calculations only and should not be considered financial advice. "
+    "For personalized financial guidance, please consult with a licensed financial advisor. "
+    "The information presented is not regulated and should not be relied upon for making investment or retirement decisions."
+)
+
 
 
 
@@ -56,5 +64,29 @@ if st.session_state.fv_total is not None:
         st.write(f"### Real Value: £{pv:,.0f}")
 
 
+if st.session_state.fv_total is not None:
+    st.write("### Retirement Data")
+    retirement_form_data = retirement_form.create_form()
+    retirement_form.init_session_state()
+
+    if st.session_state.ret_form_data is not None:
+
+        years_of_retirement = st.session_state.ret_form_data["years_of_retirement"]
+        lump_sum = st.session_state.ret_form_data["lump_sum"]
+        annual_growth = st.session_state.ret_form_data["ret_growth_rate"]
+        inflation = st.session_state.ret_form_data["ret_inflation"]
+        balance = pv
+
+        monthly_payment = retirement_calcs.calculate_retirement_income(years_of_retirement, lump_sum, annual_growth, inflation, balance)
+        
+        monthly_col, annual_col = st.columns(2)
+
+        with monthly_col:
+            st.write(f"### Real Monthly Payment: £{monthly_payment:,.0f}")
+        with annual_col:
+            st.write(f"### Real Annual Income: £{monthly_payment*12:,.0f}")
+
+
 if st.session_state.pre_retirement_df is not None:
+    st.write("### Detailed growth table")
     st.write(st.session_state.pre_retirement_df)

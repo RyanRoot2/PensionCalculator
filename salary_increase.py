@@ -6,7 +6,7 @@ def initialise_session_state():
     if 'salary_increases' not in st.session_state:
         st.session_state.salary_increases = []
     if 'salary_increases_df' not in st.session_state:
-        st.session_state.salary_increases_df = pd.DataFrame(columns=['salary','start_year'])
+        st.session_state.salary_increases_df = pd.DataFrame(columns=['Salary','Start Year'])
     if "show_form" not in st.session_state:
         st.session_state.show_form = False
     if "temp_salary" not in st.session_state:
@@ -18,8 +18,8 @@ def initialise_session_state():
 # Callback function to add salary increase to session state
 def add_to_salary_increases():
     st.session_state.salary_increases.append({
-        "salary": st.session_state.temp_salary,
-        "start_year": st.session_state.temp_start_year
+        "Salary": st.session_state.temp_salary,
+        "Start Year": st.session_state.temp_start_year
     })
     # Update the DataFrame with the latest list of increases
     st.session_state.salary_increases_df = pd.DataFrame(st.session_state.salary_increases)
@@ -64,8 +64,8 @@ def apply_salary_increase(df):
     # Make sure the main dataframe exists
     ):
         for _, row in get_salary_increases().iterrows():
-            new_salary = row['salary']
-            start_year = row['start_year']
+            new_salary = row['Salary']
+            start_year = row['Start Year']
             start_month = (start_year * 12) + 1
             salary_inflation = st.session_state.form_data['salary_inflation']
             calculations.salary_df_functions(df, new_salary, start_month, salary_inflation)
