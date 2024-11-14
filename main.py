@@ -40,9 +40,10 @@ if st.session_state.form_data:
     salary = st.session_state.form_data['salary']
     start_month = 1
     salary_inflation = st.session_state.form_data['salary_inflation']
+    contribution_rate = st.session_state.form_data['ee_contribution_rate'] + st.session_state.form_data['er_contribution_rate']
 
     calculations.set_growth_rate(st.session_state.pre_retirement_df, st.session_state.form_data['growth_rate'], 1)
-    calculations.set_contribution_rate(st.session_state.pre_retirement_df, st.session_state.form_data['ee_contribution_rate'], 1)
+    calculations.set_contribution_rate(st.session_state.pre_retirement_df, contribution_rate, 1)
     calculations.add_lump_sum(st.session_state.pre_retirement_df, st.session_state.form_data['balance'], 1)
     calculations.salary_df_functions(df, salary, start_month, salary_inflation)
 
